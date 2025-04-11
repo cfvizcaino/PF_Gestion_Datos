@@ -1,0 +1,47 @@
+services:
+  nginx:
+    image: nginx:stable-alpine
+    container_name: api-gateway
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - api-gateway-network
+
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/.env:/app/.env
+    environment:
+      - REACT_APP_API_URL=http://localhost/api
+    networks:
+      - api-gateway-network
+    depends_on:
+      - nginx
+ 
+  personas:
+    build: 
+      context: ./services/personas
+      dockerfile: Dockerfile
+    container_name: personas
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./services/personas/src:/app/src
+    depends_on:
+      - nginx
+    networks:
+      - api-gateway-network
+
+networks:
+  api-gateway-network:
+    driver: bridge
+
+
