@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "../../styles/forms.css";
 
-const PersonaForm = ({ initialData = {}, readOnly = false, submitButtonText = "Guardar" }) => {
+const PersonaForm = ({ initialData = {}, readOnly = false, submitButtonText = "Guardar", onSubmit }) => {
   const [formData, setFormData] = useState({
     primerNombre: initialData.primerNombre || "",
     segundoNombre: initialData.segundoNombre || "",
@@ -39,8 +39,13 @@ const PersonaForm = ({ initialData = {}, readOnly = false, submitButtonText = "G
   
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Form submission would be handled in the parent component
-    console.log("Form would submit:", formData);
+    
+    // Validar el formulario aquí si es necesario
+    
+    // Si hay una función onSubmit proporcionada por el padre, llamarla con los datos del formulario
+    if (typeof onSubmit === 'function') {
+      onSubmit(formData);
+    }
   };
   
   return (
@@ -214,9 +219,16 @@ const PersonaForm = ({ initialData = {}, readOnly = false, submitButtonText = "G
         {errors.foto && <span className="error-message">{errors.foto}</span>}
         <small>Tamaño máximo: 2MB</small>
         
-        {photoPreview && (
+        {(photoPreview || (readOnly && initialData.foto)) && (
           <div className="photo-preview">
-            <img src={photoPreview} alt="Vista previa" />
+            <img
+              src={
+                photoPreview
+                  ? photoPreview
+                  : `data:image/jpeg;base64,${initialData.foto}`
+              }
+              alt="Vista previa"
+            />
           </div>
         )}
       </div>

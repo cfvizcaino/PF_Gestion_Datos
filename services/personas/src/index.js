@@ -21,8 +21,19 @@ app.use((req, res, next) => {
 //Middleware
 app.use(express.json());
 
+// Añade esta ruta antes de app.use('/personas', personasRoutes);
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'API de Personas',
+    endpoints: {
+      personas: '/personas',
+      dbStatus: '/personas/db-status'
+    }
+  });
+});
+
 //Rutas
-app.use('/', personasRoutes);
+app.use('/personas', personasRoutes);
 
 const PORT = 3001;
 app.listen(PORT, () => {

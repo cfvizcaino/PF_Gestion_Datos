@@ -1,33 +1,49 @@
 import React, { useState } from "react";
 import PersonaForm from "../forms/PersonaForm";
 import SearchForm from "../forms/SearchForm";
+import axios from "axios";
 
 const ConsultarPersona = () => {
   const [searchResult, setSearchResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   
-  const handleSearch = (searchData) => {
-    // This would connect to your backend in the real implementation
+  const handleSearch = async (searchData) => {
     setIsLoading(true);
     setError(null);
+    setSearchResult(null);
     
-    // Simulate API call
-    setTimeout(() => {
-      // Simulate finding a result
-      setSearchResult({
-        primerNombre: "Ana",
-        segundoNombre: "María",
-        apellidos: "González López",
-        fechaNacimiento: "1985-08-22",
-        genero: "Femenino",
-        correoElectronico: "anamaria@example.com",
-        celular: "3109876543",
-        tipoDocumento: "Cédula",
-        numeroDocumento: "9876543210"
-      });
+    try {
+      // Llamar a la API para buscar la persona por número de documento
+      const response = await axios.get(`/api/personas/${searchData.numeroDocumento}`);
+      
+      // Transformar la respuesta al formato esperado por el componente PersonaForm
+      const personaData = {
+        primerNombre: response.data.primer_nombre,
+        segundoNombre: response.data.segundo_nombre || "",
+        apellidos: response.data.apellidos,
+        fechaNacimiento: response.data.fecha_nacimiento
+          ? response.data.fecha_nacimiento.slice(0, 10)
+          : "",
+        genero: response.data.genero,
+        correoElectronico: response.data.correo_electronico,
+        celular: response.data.celular,
+        tipoDocumento: response.data.tipo_documento,
+        numeroDocumento: response.data.nro_documento,
+        foto: response.data.foto || null, // <-- añade esto para la foto
+      };
+      
+      setSearchResult(personaData);
+      setError(null);
+    } catch (error) {
+      console.error("Error al buscar persona:", error);
+      setError(error.response?.status === 404 
+        ? "No se encontró ninguna persona con ese número de documento" 
+        : "Error al buscar la persona");
+      setSearchResult(null);
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
   
   return (
@@ -40,7 +56,7 @@ const ConsultarPersona = () => {
       <SearchForm onSearch={handleSearch} />
       
       {isLoading && <div className="loading">Buscando...</div>}
-      {error && <div className="error-message">{error}</div>}
+      {error && <div className="alert alert-danger">{error}</div>}
       
       {searchResult && (
         <>
