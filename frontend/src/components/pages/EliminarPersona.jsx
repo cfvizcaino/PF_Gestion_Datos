@@ -51,7 +51,7 @@ const EliminarPersona = () => {
     
     try {
       // Llamar a la API para eliminar la persona
-      await axios.delete(`/api/personas/borrar${searchResult.numeroDocumento}`);
+      await axios.delete(`/api/personas/borrar/${searchResult.numeroDocumento}`);
       
       setMessage({
         type: "success",

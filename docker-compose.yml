@@ -9,13 +9,9 @@ services:
     networks:
       - api-gateway-network
     depends_on:
-      crear-personas:
-        condition: service_started
-      modificar-personas:
+      personas-crud:
         condition: service_started
       consultar-personas: 
-        condition: service_started
-      borrar-personas:
         condition: service_started
       logs-personas:
         condition: service_started
@@ -37,32 +33,14 @@ services:
     depends_on:
       - nginx
  
-  # Microservicio: Crear Personas
-  crear-personas:
-    build: 
-      context: ./services/crear-personas
-      dockerfile: Dockerfile
-    container_name: crear-personas
-    volumes:
-      - ./services/crear-personas/src:/app/src
-    depends_on:
-      - postgres-db
-    environment:
-      - DB_HOST=postgres-db
-      - DB_USER=admin
-      - DB_PASSWORD=admin
-      - DB_NAME=gestion_datos
-    networks:
-      - api-gateway-network
-
-  # Microservicio: Modificar Personas
-  modificar-personas:
+  # Servicio CRUD consolidado (reemplaza a crear, modificar y borrar personas)
+  personas-crud:
     build:
-      context: ./services/modificar-personas
+      context: ./services/personas-crud
       dockerfile: Dockerfile
-    container_name: modificar-personas
+    container_name: personas-crud
     volumes:
-      - ./services/modificar-personas/src:/app/src
+      - ./services/personas-crud/src:/app/src
     depends_on:
       - postgres-db
     environment:
@@ -70,6 +48,7 @@ services:
       - DB_USER=admin
       - DB_PASSWORD=admin
       - DB_NAME=gestion_datos
+      - PORT=3001
     networks:
       - api-gateway-network
 
@@ -88,24 +67,6 @@ services:
         condition: on-failure
     volumes:
       - ./services/consultar-personas/src:/app/src
-    depends_on:
-      - postgres-db
-    environment:
-      - DB_HOST=postgres-db
-      - DB_USER=admin
-      - DB_PASSWORD=admin
-      - DB_NAME=gestion_datos
-    networks:
-      - api-gateway-network
-
-  # Microservicio: Borrar Personas
-  borrar-personas:
-    build:
-      context: ./services/borrar-personas
-      dockerfile: Dockerfile
-    container_name: borrar-personas
-    volumes:
-      - ./services/borrar-personas/src:/app/src
     depends_on:
       - postgres-db
     environment:

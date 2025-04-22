@@ -13,7 +13,7 @@ const ModificarPersona = () => {
     setMessage(null);
     
     try {
-      const response = await axios.get(`/api/personas/${searchData.numeroDocumento}`);
+      const response = await axios.get(`/api/personas/consultar${searchData.numeroDocumento}`);
       
       // Transformar la respuesta al formato esperado por el componente PersonaForm
       const personaData = {
@@ -68,7 +68,7 @@ const ModificarPersona = () => {
 
     try {
       // Llamar a la API para actualizar la persona
-      const response = await axios.put(`/api/personas/modificar${formData.numeroDocumento}`, personaData);
+      const response = await axios.put(`/api/personas/modificar/${formData.numeroDocumento}`, personaData);
       
       setMessage({
         type: "success",

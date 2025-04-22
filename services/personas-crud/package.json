@@ -1,7 +1,7 @@
 {
-    "name": "crear-personas",
+    "name": "personas-crud",
     "version": "1.0.0",
-    "description": "Microservicio para crear personas",
+    "description": "Servicio CRUD para personas",
     "main": "src/index.js",
     "scripts": {
       "start": "node src/index.js"
