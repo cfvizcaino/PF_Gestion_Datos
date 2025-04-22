@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import SearchForm from "../forms/SearchForm";
+import axios from "axios";
 
 const EliminarPersona = () => {
   const [searchResult, setSearchResult] = useState(null);
@@ -7,38 +8,66 @@ const EliminarPersona = () => {
   const [message, setMessage] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   
-  const handleSearch = (searchData) => {
+  const handleSearch = async (searchData) => {
     setIsLoading(true);
     setMessage(null);
     setConfirmDelete(false);
     
-    // Simulate API call
-    setTimeout(() => {
-      setSearchResult({
-        primerNombre: "Carlos",
-        segundoNombre: "",
-        apellidos: "Martínez Sánchez",
-        fechaNacimiento: "1978-11-30",
-        tipoDocumento: searchData.tipoDocumento,
-        numeroDocumento: searchData.numeroDocumento
+    try {
+      const response = await axios.get(`/api/personas/${searchData.numeroDocumento}`);
+      
+      // Transformar la respuesta al formato esperado por el componente
+      const personaData = {
+        primerNombre: response.data.primer_nombre,
+        segundoNombre: response.data.segundo_nombre || "",
+        apellidos: response.data.apellidos,
+        fechaNacimiento: response.data.fecha_nacimiento
+          ? response.data.fecha_nacimiento.slice(0, 10)
+          : "",
+        genero: response.data.genero,
+        correoElectronico: response.data.correo_electronico,
+        celular: response.data.celular,
+        tipoDocumento: response.data.tipo_documento,
+        numeroDocumento: response.data.nro_documento
+      };
+      
+      setSearchResult(personaData);
+    } catch (error) {
+      console.error("Error al buscar persona:", error);
+      setMessage({
+        type: "error",
+        text: error.response?.status === 404
+          ? "No se encontró ninguna persona con ese número de documento"
+          : "Error al buscar la persona"
       });
+      setSearchResult(null);
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
   
-  const handleDelete = () => {
+  const handleDelete = async () => {
     setIsLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      // Llamar a la API para eliminar la persona
+      await axios.delete(`/api/personas/${searchResult.numeroDocumento}`);
+      
       setMessage({
         type: "success",
         text: `Se ha eliminado a ${searchResult.primerNombre} ${searchResult.apellidos} del sistema correctamente.`
       });
       setSearchResult(null);
       setConfirmDelete(false);
+    } catch (error) {
+      console.error("Error al eliminar persona:", error);
+      setMessage({
+        type: "error",
+        text: "Error al eliminar la persona del sistema."
+      });
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
   
   return (

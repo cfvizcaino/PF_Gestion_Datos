@@ -1,7 +1,13 @@
 import React, { useState } from "react";
 import "../../styles/forms.css";
 
-const PersonaForm = ({ initialData = {}, readOnly = false, submitButtonText = "Guardar", onSubmit }) => {
+const PersonaForm = ({
+  initialData = {},
+  readOnly = false,
+  submitButtonText = "Guardar",
+  onSubmit,
+  disableNumeroDocumento = false // <-- Agrega esto
+}) => {
   const [formData, setFormData] = useState({
     primerNombre: initialData.primerNombre || "",
     segundoNombre: initialData.segundoNombre || "",
@@ -195,7 +201,7 @@ const PersonaForm = ({ initialData = {}, readOnly = false, submitButtonText = "G
           type="text"
           value={formData.numeroDocumento}
           onChange={handleChange}
-          disabled={readOnly}
+          disabled={readOnly || disableNumeroDocumento}
           className={errors.numeroDocumento ? "error" : ""}
           maxLength={10}
           pattern="[0-9]{1,10}"

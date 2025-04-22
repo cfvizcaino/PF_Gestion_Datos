@@ -1,29 +1,47 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PersonaForm from "../forms/PersonaForm";
 import axios from "axios";
+
+// Convierte un File a base64
+const fileToBase64 = (file) =>
+  new Promise((resolve, reject) => {
+    if (!file) return resolve(null);
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 
 const CrearPersona = () => {
   const [message, setMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Reinicia el estado cuando se monta el componente
+  useEffect(() => {
+    setIsLoading(false);
+  }, []);
 
   const handleSubmit = async (formData) => {
+    setIsLoading(true);
+    setMessage(null);
+
+    // Convierte la foto a base64 si existe
+    const fotoBase64 = await fileToBase64(formData.foto);
+
+    const personaData = {
+      primer_nombre: formData.primerNombre,
+      segundo_nombre: formData.segundoNombre,
+      apellidos: formData.apellidos,
+      fecha_nacimiento: formData.fechaNacimiento,
+      genero: formData.genero,
+      correo_electronico: formData.correoElectronico,
+      celular: formData.celular,
+      tipo_documento: formData.tipoDocumento,
+      nro_documento: formData.numeroDocumento,
+      foto: fotoBase64, // <-- Aquí sí se envía la foto
+    };
+
     try {
-      setIsLoading(true);
-      setMessage(null);
-
-      // Preparar los datos para la API siguiendo la estructura del backend
-      const personaData = {
-        primer_nombre: formData.primerNombre,
-        segundo_nombre: formData.segundoNombre,
-        apellidos: formData.apellidos,
-        fecha_nacimiento: formData.fechaNacimiento,
-        genero: formData.genero,
-        correo_electronico: formData.correoElectronico,
-        celular: formData.celular,
-        tipo_documento: formData.tipoDocumento,
-        nro_documento: formData.numeroDocumento,
-      };
-
       // Llamar a la API para crear la persona
       const response = await axios.post('/api/personas/', personaData);
       
