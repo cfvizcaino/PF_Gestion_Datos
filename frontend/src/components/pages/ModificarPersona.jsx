@@ -68,7 +68,7 @@ const ModificarPersona = () => {
 
     try {
       // Llamar a la API para actualizar la persona
-      const response = await axios.put(`/api/personas/${formData.numeroDocumento}`, personaData);
+      const response = await axios.put(`/api/personas/modificar${formData.numeroDocumento}`, personaData);
       
       setMessage({
         type: "success",

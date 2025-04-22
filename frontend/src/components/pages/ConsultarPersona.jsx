@@ -15,7 +15,7 @@ const ConsultarPersona = () => {
     
     try {
       // Llamar a la API para buscar la persona por número de documento
-      const response = await axios.get(`/api/personas/${searchData.numeroDocumento}`);
+      const response = await axios.get(`/api/personas/consultar${searchData.numeroDocumento}`);
       
       // Transformar la respuesta al formato esperado por el componente PersonaForm
       const personaData = {

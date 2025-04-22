@@ -43,7 +43,7 @@ const CrearPersona = () => {
 
     try {
       // Llamar a la API para crear la persona
-      const response = await axios.post('/api/personas/', personaData);
+      const response = await axios.post('/api/personas/crear', personaData);
       
       setMessage({
         type: "success",
