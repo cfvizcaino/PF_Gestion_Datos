@@ -8,6 +8,13 @@ services:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
     networks:
       - api-gateway-network
+    depends_on:
+      personas-crud:
+        condition: service_started
+      consultar-personas: 
+        condition: service_started
+      logs-personas:
+        condition: service_started
 
   frontend:
     build: 
@@ -20,25 +27,95 @@ services:
       - ./frontend/src:/app/src
       - ./frontend/.env:/app/.env
     environment:
-      - REACT_APP_API_URL=http://localhost/api
+      - REACT_APP_API_URL=http://localhost
     networks:
       - api-gateway-network
     depends_on:
       - nginx
  
-  personas:
-    build: 
-      context: ./services/personas
+  # Servicio CRUD consolidado (reemplaza a crear, modificar y borrar personas)
+  personas-crud:
+    build:
+      context: ./services/personas-crud
       dockerfile: Dockerfile
-    container_name: personas
-    ports:
-      - "3001:3001"
+    container_name: personas-crud
     volumes:
-      - ./services/personas/src:/app/src
+      - ./services/personas-crud/src:/app/src
     depends_on:
-      - nginx
+      - postgres-db
+    environment:
+      - DB_HOST=postgres-db
+      - DB_USER=admin
+      - DB_PASSWORD=admin
+      - DB_NAME=gestion_datos
+      - PORT=3001
     networks:
       - api-gateway-network
+
+  # Microservicio: Consultar Personas (escalable)
+  consultar-personas:
+    build:
+      context: ./services/consultar-personas
+      dockerfile: Dockerfile
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - ./services/consultar-personas/src:/app/src
+    depends_on:
+      - postgres-db
+    environment:
+      - DB_HOST=postgres-db
+      - DB_USER=admin
+      - DB_PASSWORD=admin
+      - DB_NAME=gestion_datos
+    networks:
+      - api-gateway-network
+
+  # Microservicio: Logs
+  logs-personas:
+    build:
+      context: ./services/logs-personas
+      dockerfile: Dockerfile
+    container_name: logs-personas
+    volumes:
+      - ./services/logs-personas/src:/app/src
+    depends_on:
+      - postgres-db
+    environment:
+      - DB_HOST=postgres-db
+      - DB_USER=admin
+      - DB_PASSWORD=admin
+      - DB_NAME=gestion_datos
+    networks:
+      - api-gateway-network
+
+  # Base de datos compartida
+  postgres-db:
+    build: 
+      context: ./services/postgres
+      dockerfile: Dockerfile
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: gestion_datos
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - api-gateway-network
+
+volumes:
+  postgres_data:
+    driver: local
 
 networks:
   api-gateway-network:

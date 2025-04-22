@@ -1,0 +1,7 @@
+FROM ankane/pgvector:latest
+
+# Copiar scripts de inicialización
+COPY ./scripts/ /docker-entrypoint-initdb.d/
+
+# Exponer el puerto de PostgreSQL
+EXPOSE 5432
