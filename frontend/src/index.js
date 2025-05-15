@@ -5,8 +5,32 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import axios from 'axios';
 
-// Asegúrate que la URL base NO tenga /api
-axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'http://localhost';
+// Set baseURL from environment
+const baseURL = process.env.REACT_APP_API_URL || 'http://localhost';
+console.log('Using API base URL:', baseURL);
+axios.defaults.baseURL = baseURL;
+
+// Add request interceptor for debugging
+axios.interceptors.request.use(request => {
+  console.log('Outgoing request:', request.method.toUpperCase(), request.url);
+  return request;
+});
+
+// Add response interceptor for debugging
+axios.interceptors.response.use(
+  response => {
+    console.log('Response:', response.status, response.config.url);
+    return response;
+  },
+  error => {
+    console.error('API Error:', error.message);
+    if (error.response) {
+      console.error('Status:', error.response.status);
+      console.error('Data:', error.response.data);
+    }
+    return Promise.reject(error);
+  }
+);
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
