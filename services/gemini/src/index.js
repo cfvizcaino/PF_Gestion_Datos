@@ -1,5 +1,4 @@
 const express = require('express');
-const cors = require('cors');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const { Pool } = require('pg');
 
@@ -11,12 +10,6 @@ app.use((req, res, next) => {
     next();
 });
 
-// Configuración CORS más permisiva
-app.use(cors({
-    origin: '*',
-    methods: ['GET', 'POST', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
 
 app.use(express.json());
 
@@ -160,7 +153,7 @@ app.post('/query', async (req, res) => {
         `;
 
         // Generar respuesta con Gemini
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
         const result = await model.generateContent(context);
         const response = await result.response;
 
