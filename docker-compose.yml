@@ -15,6 +15,8 @@ services:
         condition: service_started
       logs-personas:
         condition: service_started
+      gemini:
+        condition: service_started
 
   frontend:
     build: 
@@ -113,6 +115,26 @@ services:
     networks:
       - api-gateway-network
 
+  # Microservicio: Gemini AI
+  gemini:
+    build:
+      context: ./services/gemini
+      dockerfile: Dockerfile
+    container_name: gemini-ai
+    volumes:
+      - ./services/gemini/src:/app/src
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - DB_HOST=postgres-db
+      - DB_USER=admin
+      - DB_PASSWORD=admin
+      - DB_NAME=gestion_datos
+      - PORT=3005
+    networks:
+      - api-gateway-network
+    depends_on:
+      - postgres-db
+
 volumes:
   postgres_data:
     driver: local
@@ -120,5 +142,3 @@ volumes:
 networks:
   api-gateway-network:
     driver: bridge
-
-
